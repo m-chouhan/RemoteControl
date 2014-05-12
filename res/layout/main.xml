@@ -3,7 +3,7 @@
     android:id="@+id/RelativeLayout1"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@drawable/background"
+    android:background="@drawable/back2"
     android:orientation="vertical" >
 
     <LinearLayout
@@ -59,49 +59,75 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true" />
 
-    <Button
-        android:id="@+id/up"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:text="UP" />
+    <SlidingDrawer
+        android:id="@+id/slidingDrawer1"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:content="@+id/content"
+        android:handle="@+id/handle" >
+        
+	    <ImageView
+	        android:id="@+id/handle"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:src="@drawable/scrollupicon" />
+       
+        <RelativeLayout
+            android:id="@+id/content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+		
+		    <ImageButton
+		        android:id="@+id/down"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_below="@+id/up"
+		        android:layout_centerHorizontal="true"
+		        android:layout_marginTop="20dp"
+		        android:src="@drawable/buttondownloadicon" />
+		
+		    <ImageButton
+		        android:id="@+id/space"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_alignLeft="@+id/down"
+		        android:layout_below="@+id/down"
+		        android:layout_marginTop="24dp"
+		        android:src="@drawable/buttonstopicon" 
+		        />
+		
+		    <ImageButton
+		        android:id="@+id/right"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_alignTop="@+id/up"
+		        android:layout_marginTop="33dp"
+		        android:layout_toRightOf="@+id/space"
+		        android:src="@drawable/buttonnexticon"
+		         />
+		
+		    <ImageButton
+		        android:id="@+id/left"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_alignBaseline="@+id/right"
+		        android:layout_alignBottom="@+id/right"
+		        android:layout_toLeftOf="@+id/up"
+		        android:src="@drawable/buttonpreviousicon"		        
+		        android:text="left" />
 
-    <Button
-        android:id="@+id/down"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/up"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="20dp"
-        android:text="Down" />
-
-    <Button
-        android:id="@+id/space"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/down"
-        android:layout_below="@+id/down"
-        android:layout_marginTop="24dp"
-        android:text="space" />
-
-    <Button
-        android:id="@+id/right"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/up"
-        android:layout_marginTop="33dp"
-        android:layout_toRightOf="@+id/space"
-        android:text="right" />
-
-    <Button
-        android:id="@+id/left"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/right"
-        android:layout_alignBottom="@+id/right"
-        android:layout_toLeftOf="@+id/up"
-        android:text="left" />
-
+		    <Button
+		        android:id="@+id/up"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_alignParentTop="true"
+		        android:layout_alignRight="@+id/down"
+		        android:layout_marginTop="0dp"
+		        android:text="UP" />
+            
+        </RelativeLayout>
+    </SlidingDrawer>
 
 </RelativeLayout>

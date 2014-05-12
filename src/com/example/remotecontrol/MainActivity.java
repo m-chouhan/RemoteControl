@@ -39,6 +39,7 @@ import android.view.View;
 import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -64,17 +65,18 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 		setContentView(R.layout.main);
 		
 		text = (TextView)findViewById(R.id.Text);
-		Button but = (Button)findViewById(R.id.up);
+		Button B = (Button)findViewById(R.id.up);
+		B.setOnClickListener(this);
+		
+		ImageButton but = (ImageButton)findViewById(R.id.down);
 		but.setOnClickListener(this);
-		but = (Button)findViewById(R.id.down);
+		but = (ImageButton)findViewById(R.id.left);
 		but.setOnClickListener(this);
-		but = (Button)findViewById(R.id.left);
+		but = (ImageButton)findViewById(R.id.right);
 		but.setOnClickListener(this);
-		but = (Button)findViewById(R.id.right);
-		but.setOnClickListener(this);
-		but = (Button)findViewById(R.id.space);
+		but = (ImageButton)findViewById(R.id.space);
 		but.setOnClickListener(this);/**/
-		but = (Button)findViewById(R.id.connect);
+		B = (Button)findViewById(R.id.connect);
 		but.setOnClickListener(this);
 		v = (View)findViewById(R.id.view1);
 		getApplicationContext();
