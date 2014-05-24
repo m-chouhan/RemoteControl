@@ -46,6 +46,8 @@ import android.widget.ToggleButton;
 
 public class MainActivity extends Activity implements Button.OnClickListener, SensorEventListener {
 
+	final String TAG = "RemoteControl";
+	
 	private Handler handler = null;
 	//FIFO Queue for low pass filtering
 	private Queue Qx = new Queue(20),Qy = new Queue(20),Qz = new Queue(20);
@@ -65,8 +67,6 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 		setContentView(R.layout.main);
 		
 		text = (TextView)findViewById(R.id.Text);
-		Button B = (Button)findViewById(R.id.up);
-		B.setOnClickListener(this);
 		
 		ImageButton but = (ImageButton)findViewById(R.id.down);
 		but.setOnClickListener(this);
@@ -76,8 +76,11 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 		but.setOnClickListener(this);
 		but = (ImageButton)findViewById(R.id.space);
 		but.setOnClickListener(this);/**/
-		B = (Button)findViewById(R.id.connect);
-		but.setOnClickListener(this);
+		but = (ImageButton)findViewById(R.id.up);
+		but.setOnClickListener(this);/**/
+
+		//B = (Button)findViewById(R.id.connect);
+		//but.setOnClickListener(this);
 		v = (View)findViewById(R.id.view1);
 		getApplicationContext();
 		sm = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
@@ -160,6 +163,7 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 	public void onClick(View view) {
 		
 
+			Log.d(TAG,"ButtonClicked");
 			if(view.getId() == R.id.connect) 
 			{
 				Log.d(TAG,"H:"+v.getHeight()+"W:"+v.getWidth());
@@ -303,5 +307,5 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 		}
 	}
 	
-	final String TAG = "RemoteControl";
+
 }

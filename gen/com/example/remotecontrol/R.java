@@ -32,12 +32,21 @@ public final class R {
         public static final int buttonpreviousicon=0x7f020008;
         public static final int buttonreloadicon=0x7f020009;
         public static final int buttonstopicon=0x7f02000a;
-        public static final int ic_action_name=0x7f02000b;
-        public static final int ic_launcher=0x7f02000c;
-        public static final int scrolldownicon=0x7f02000d;
-        public static final int scrolllefticon=0x7f02000e;
-        public static final int scrollrighticon=0x7f02000f;
-        public static final int scrollupicon=0x7f020010;
+        public static final int down=0x7f02000b;
+        public static final int ic_action_name=0x7f02000c;
+        public static final int ic_launcher=0x7f02000d;
+        public static final int left=0x7f02000e;
+        public static final int right=0x7f02000f;
+        public static final int scrolldownicon=0x7f020010;
+        public static final int scrolllefticon=0x7f020011;
+        public static final int scrollrighticon=0x7f020012;
+        public static final int scrollupicon=0x7f020013;
+        public static final int sdown=0x7f020014;
+        public static final int sleft=0x7f020015;
+        public static final int sright=0x7f020016;
+        public static final int stop=0x7f020017;
+        public static final int sup=0x7f020018;
+        public static final int up2=0x7f020019;
     }
     public static final class id {
         public static final int EditText01=0x7f080001;
