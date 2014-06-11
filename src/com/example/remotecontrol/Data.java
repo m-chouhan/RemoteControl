@@ -3,7 +3,7 @@ package com.example.remotecontrol;
 import android.os.Handler;
 
 final class Data {
-	public static enum KEYBUTTONS{
+	public static enum V_KEYBUTTONS{
 		L_BUTTON(0x01),
 		R_BUTTON(0x02),
 		M_BUTTON(0x04),
@@ -15,18 +15,19 @@ final class Data {
 		RIGHT(0x27),
 		DOWN(0x28),
 		DELETE(0x2E),
-		SPACE(0x20);
-		
+		SPACE(0x20),
+		BACKSPACE(0x08);
 		byte value;
-		KEYBUTTONS(int val){ value = (byte)val;}
+		V_KEYBUTTONS(int val){ value = (byte)val;}
 		public byte getValue(){return value;}
 	}
 	static final int BROADCAST = 4;
 	static final int RAW = 1;
 	static final int KEYBOARD = 0;
+	//static final int TEXT = 3;
 	public static enum InputModes{
 		ACCELERO(1),KEYBOARD(0),TOUCH(2),
-		ABSOLUTE_MOUSE(3);
+		TEXT(5),ABSOLUTE_MOUSE(3);
 		final byte val;
 		InputModes(int value)
 		{

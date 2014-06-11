@@ -15,8 +15,6 @@
             android:id="@+id/EditText01"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
             android:hint="Enter SERVER "
             android:visibility="gone" />
 
@@ -24,18 +22,20 @@
             android:id="@+id/connect"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
+            android:indeterminate="false"
+            android:drawableLeft="@drawable/connect"
             android:onClick="onClick"
-            android:text="connect\nto Server" />
+            android:text="connect" />
 
         <ToggleButton
             android:id="@+id/toggleButton1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="onToggleClicked"
-            android:textOff="SENSOR \n OFF"
-            android:textOn="SENSOR \n ON" />
+            android:background="@null"
+            android:textOn="ON"
+            android:textOff="OFF"
+            android:button="@drawable/toggle"/>
 
         <ToggleButton
             android:id="@+id/toggleButton2"
@@ -44,6 +44,14 @@
             android:text="ToggleButton"
             android:textOff="Keyboard \nOFF"
             android:textOn="Keyboard \nON" />
+
+        <ProgressBar
+            android:id="@+id/pb"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="false"
+            android:visibility="invisible" />
+
     </LinearLayout>
 
     <TextView
@@ -127,9 +135,46 @@
 		        android:layout_alignRight="@+id/down"
 		        android:layout_marginTop="0dp"
        	        android:src="@drawable/sup"
-		        />
-            
+		        />    
         </RelativeLayout>
-    </SlidingDrawer>
 
+    </SlidingDrawer>
+    
+	<SlidingDrawer 
+        android:id="@+id/slidingDrawer2"
+        android:layout_width="match_parent"
+        android:layout_height="500dp"
+        android:orientation="vertical"
+        android:layout_alignParentBottom="true"
+        android:content="@+id/content2"
+        android:handle="@+id/handle2" >
+        
+	    <ImageView
+	        android:id="@+id/handle2"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:src="@drawable/up2" />
+		<LinearLayout 
+            android:id="@+id/content2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" 
+            android:orientation="horizontal">
+            
+            <AutoCompleteTextView
+                android:id="@+id/AutoText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="Enter Text Here"
+                android:textColor="#afffff" >
+            <requestFocus />
+        	</AutoCompleteTextView>
+		    <ImageButton
+		        android:id="@+id/send"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:src="@drawable/send" />            
+		</LinearLayout>	    	    
+	    
+	</SlidingDrawer>
 </RelativeLayout>

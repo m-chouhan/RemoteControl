@@ -2,35 +2,47 @@ package com.example.remotecontrol;
 
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.InterfaceAddress;
+import java.net.NetworkInterface;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.charset.Charset;
+import java.util.Enumeration;
+import java.util.List;
 
 import com.example.remotecontrol.Data.Actions;
 import com.example.remotecontrol.Data.InputModes;
-import com.example.remotecontrol.Data.KEYBUTTONS;
+import com.example.remotecontrol.Data.V_KEYBUTTONS;
 
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.IntentService;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorListener;
 import android.hardware.SensorManager;
+import android.net.DhcpInfo;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v4.view.MotionEventCompat;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
@@ -40,7 +52,9 @@ import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -60,6 +74,10 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 	ByteBuffer Buffer = ByteBuffer.allocate(20).order(ByteOrder.LITTLE_ENDIAN);
 	View v;
 	private MyGestureListener listen;
+
+	private ProgressBar pb;
+
+	private Button connected;
 	@SuppressWarnings("deprecation")
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -67,6 +85,109 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 		setContentView(R.layout.main);
 		
 		text = (TextView)findViewById(R.id.Text);
+
+		EditText et = (EditText)findViewById(R.id.AutoText);
+		et.setOnKeyListener(new View.OnKeyListener() {
+			
+		        public boolean onKey(View v, int keyCode, KeyEvent event) {
+
+        			Buffer.clear();
+        			Buffer.put(InputModes.TEXT.getValue());
+        			
+        			V_KEYBUTTONS data = null;
+            		switch(keyCode)
+            		{
+            			case KeyEvent.KEYCODE_ENTER:
+            					data = V_KEYBUTTONS.RETURN;
+            					break;
+            			case KeyEvent.KEYCODE_DEL:
+            					data = V_KEYBUTTONS.BACKSPACE;
+            					break;
+            		}
+		        	switch(event.getAction())
+		            {
+			            case KeyEvent.ACTION_DOWN:
+			            		Log.d("EditText", "ActionDown:"+keyCode);
+			            		break;
+			            case KeyEvent.ACTION_UP:
+			            		Log.d("EditText", "ActionUP:"+keyCode);
+			            		break;
+			            case KeyEvent.ACTION_MULTIPLE:
+		            			Log.d("EditText", "ActionMultiple:"+keyCode);
+			            		break;
+		            }
+		        	if(data != null)
+		        	{
+		        		Buffer.put(data.getValue());
+		        		Buffer.put((byte)0);
+		        		listen.sendRawMessage(Buffer);
+		        	}
+		            return true;
+		        }
+		    });/**//*
+		et.setOnEditorActionListener(new OnEditorActionListener(){
+
+			public boolean onEditorAction(TextView arg0, int arg1, KeyEvent arg2) {
+				// TODO Auto-generated method stub
+				Log.d("EditText","OnEditorAction");
+				return false;
+			}});/* */
+		et.addTextChangedListener(new TextWatcher(){
+
+			public void afterTextChanged(Editable arg0) {
+				// TODO Auto-generated method stub
+				//Log.d("Edittext", "after"+arg0.toString());
+				
+			}
+
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {
+				// TODO Auto-generated method stub
+				
+			}
+			String prev="";
+			ByteBuffer Buffer = ByteBuffer.allocate(80).order(ByteOrder.LITTLE_ENDIAN);
+			public void onTextChanged(CharSequence s, int start, int before,
+					int count) {
+				// TODO Auto-generated method stub
+				String current = s.toString();
+				int commonChars = Compare(current,prev);
+				try {
+						Buffer.clear();
+						Buffer.put(InputModes.TEXT.getValue());
+						int i = 0;
+						for(;i<(prev.length()-commonChars);++i)
+							Buffer.put(V_KEYBUTTONS.BACKSPACE.getValue());
+					//	Log.d("EditText","Backspaces:"+i+"  common"+commonChars+prev+":"+current);
+						byte text[] = current.substring(commonChars).getBytes("US-ASCII");
+						Buffer.put(text);Buffer.put((byte) 0);
+						listen.sendRawMessage(Buffer);
+						prev = current;
+						} catch (UnsupportedEncodingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				//Log.d("EditText",s.toString()+":"+start+":"+before+":"+count);
+			}
+			
+			public int Compare(String s1,String s2)
+			{
+				if(s1.length() == 0 || s2.length() == 0) return 0;
+				int len = Math.min(s1.length(), s2.length()),i = 0;
+				Log.d("EditTExt","minlength"+len);
+				try{
+					while(i<len && s1.charAt(i) == s2.charAt(i))
+					i++;
+				}catch(IndexOutOfBoundsException e){
+					Log.d("EditText","OutofBounds"+i);
+					return 0;
+				}
+				return i;
+			}
+		});
+		pb = (ProgressBar)findViewById(R.id.pb);
+
+		connected = (Button)findViewById(R.id.connect);
 		
 		ImageButton but = (ImageButton)findViewById(R.id.down);
 		but.setOnClickListener(this);
@@ -105,8 +226,7 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 		{
 			v.setVisibility(View.VISIBLE);
 			sm.registerListener(this, sm.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD),SensorManager.SENSOR_DELAY_GAME);
-			sm.registerListener(this, sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),SensorManager.SENSOR_DELAY_GAME);
-			
+			sm.registerListener(this, sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),SensorManager.SENSOR_DELAY_GAME);			
 			//sm.registerListener(this, sm.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR),SensorManager.SENSOR_DELAY_GAME);				
 		}
 		else
@@ -115,9 +235,18 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 			v.setVisibility(View.INVISIBLE);
 		}
 	}
+
+/*	@Override
+	public boolean dispatchKeyEvent(KeyEvent event) {
+		// TODO Auto-generated method stub
+		Log.d("EditText","Dispatch:"+event.getAction());
+		return super.dispatchKeyEvent(event);
+	}
+*/
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		// TODO Auto-generated method stub
+		// TODO Auto-generand d method stub
+		Log.d("EditText","OnKeyDown");
 		switch(keyCode){
 			case KeyEvent.KEYCODE_MENU: 
 			     Toast.makeText(this, "Menu key pressed", Toast.LENGTH_SHORT).show();
@@ -128,8 +257,7 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 		   case KeyEvent.KEYCODE_BACK:
 			     onBackPressed();
 			     return true;
-		   case KeyEvent.KEYCODE_VOLUME_UP:
-			   
+		   case KeyEvent.KEYCODE_VOLUME_UP:			   
 					Buffer.clear();
 					Buffer.put(InputModes.TOUCH.getValue());
 					Buffer.putFloat((float) (Qx.getMean()) );
@@ -140,8 +268,20 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 		   case KeyEvent.KEYCODE_VOLUME_DOWN:
 			     Toast.makeText(this,"Volumen Down pressed", Toast.LENGTH_SHORT).show();
 			     return true;
+		   case KeyEvent.KEYCODE_CAPS_LOCK:
+		   case KeyEvent.KEYCODE_SPACE:case KeyEvent.KEYCODE_X:
+			     Toast.makeText(this,"CapsLock", Toast.LENGTH_SHORT).show();
+			     Log.d("EditText","CapsLock");
+			     return true;
 		 }
 		 return super.onKeyDown(keyCode, event);	
+	}
+
+	@Override
+	public boolean onKeyShortcut(int keyCode, KeyEvent event) {
+		// TODO Auto-generated method stub
+		Log.d("EditText","OnKeyShort");
+		return super.onKeyShortcut(keyCode, event);
 	}
 
 	@Override
@@ -162,10 +302,12 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 
 	public void onClick(View view) {
 		
-
 			Log.d(TAG,"ButtonClicked");
 			if(view.getId() == R.id.connect) 
 			{
+				//Log.d(TAG,getBroadcastAddr().toString());
+				pb.setVisibility(View.VISIBLE);
+				connected.setText("connecting..");
 				Log.d(TAG,"H:"+v.getHeight()+"W:"+v.getWidth());
 				Thread background = new LooperThread();
 				background.start();
@@ -179,23 +321,23 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 				Message msg = handler.obtainMessage();
 				msg.what = Data.BROADCAST ;
 				handler.sendMessage(msg);/**/
-
 				//sm.registerListener(this, sm.getDefaultSensor(Sensor.TYPE_ORIENTATION),SensorManager.SENSOR_DELAY_GAME);
 				
 				if( sm.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR) == null)
 					Log.d(TAG,"NOT avlble");
 				return;
 			}
-			KEYBUTTONS key = null ;
+			
+			V_KEYBUTTONS key = null ;
 			switch(view.getId())
 			{
-				case R.id.up  : 	key = KEYBUTTONS.UP;break;
-				case R.id.down:		key = KEYBUTTONS.DOWN;break;
-				case R.id.left:		key = KEYBUTTONS.LEFT;break;
-				case R.id.right:	key = KEYBUTTONS.RIGHT;break;
-				case R.id.space:	key = KEYBUTTONS.SPACE;break;
+				case R.id.up  : 	key = V_KEYBUTTONS.UP;break;
+				case R.id.down:		key = V_KEYBUTTONS.DOWN;break;
+				case R.id.left:		key = V_KEYBUTTONS.LEFT;break;
+				case R.id.right:	key = V_KEYBUTTONS.RIGHT;break;
+				case R.id.space:	key = V_KEYBUTTONS.SPACE;break;
 			}
-			
+			if(handler == null) return;
 			Message msg = handler.obtainMessage();
 			msg.arg1 = key.getValue();msg.what = Data.KEYBOARD;
 			
@@ -207,6 +349,41 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
 	}
 
+	public void showAlert(String heading,String content) {
+		new AlertDialog.Builder(this)
+		.setTitle(heading)
+		.setMessage(content)
+		.setNeutralButton("Ok fine..",null)
+		.show();
+		pb.setVisibility(View.INVISIBLE);
+		connected.setText("Connect Again");
+	}
+	
+	private InetAddress getBroadcastAddr() 
+	{
+		InetAddress bcast = null;
+		System.setProperty("java.net.preferIPv4Stack","true");
+		try
+		{
+			Enumeration<NetworkInterface> nienum = NetworkInterface.getNetworkInterfaces();
+			while(nienum.hasMoreElements())
+			{
+				NetworkInterface ni = nienum.nextElement();
+				if(!ni.isLoopback())
+				{
+					List<InterfaceAddress> addresses = ni.getInterfaceAddresses();
+					for(InterfaceAddress iaddr :addresses)
+					{
+						InetAddress addr = iaddr.getBroadcast();
+						if(addr != null) bcast = addr;						
+					}
+				}				
+			}
+			
+		}catch (SocketException e){ e.printStackTrace();}
+		return bcast;
+	}
+	
 	float[] accelro = new float[3];float []mag = new float[3];
 	float[] rotationmat = new float[9];float []orient = new float[3];
 	public void onSensorChanged(SensorEvent event) {
@@ -274,24 +451,7 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 									packet = new DatagramPacket(buff,buff.length,server_ip,SERVERPORT);
 									break;
 						case Data.BROADCAST:		
-									byte []arr = new byte[5];
-									arr[0] = 4;  //dummy packet :)									
-									try {
-										Log.d(TAG,"Broadcasting..");
-										packet = new DatagramPacket(arr,arr.length,InetAddress.getByName("192.168.43.255"),SERVERPORT);
-										Dsocket.send(packet);
-										Dsocket.receive(packet);
-										Log.d(TAG,"Address::"+packet.getAddress().toString());
-										server_ip = packet.getAddress();
-									} catch (UnknownHostException e1) {
-										// TODO Auto-generated catch block
-										Log.d(TAG,"UnknownHost");
-										e1.printStackTrace();
-									} catch (IOException e) {
-										// TODO Auto-generated catch block
-										e.printStackTrace();
-										Log.d(TAG,"IOEx");
-									}										
+									handleBroadcast();
 									return;										
 					}
 					
@@ -305,7 +465,53 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 			};
 			Looper.loop();
 		}
+		private void handleBroadcast(){
+			byte []arr = new byte[5];
+			arr[0] = 4;  //dummy packet :)									
+			try {
+				Log.d(TAG,"Broadcasting..");
+				InetAddress bcast = getBroadcastAddr();
+				if(bcast == null) 
+				{
+					runOnUiThread(new Runnable(){
+				
+						public void run()
+						{
+							showAlert("Connection Failed","Please Connect to wifi");
+						}
+					});
+					return;
+				}
+				DatagramPacket packet = new DatagramPacket(arr,arr.length,bcast,SERVERPORT);
+				Dsocket.send(packet);
+				Dsocket.receive(packet);
+				Log.d(TAG,"Address::"+packet.getAddress().toString());
+				server_ip = packet.getAddress();
+				runOnUiThread(new Runnable(){
+					public void run()
+					{
+						pb.setVisibility(View.INVISIBLE);
+						connected.setText("connected");
+					}
+				});
+				
+			} catch (UnknownHostException e1) {
+				// TODO Auto-generated catch block
+				Log.d(TAG,"UnknownHost");
+				e1.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				Log.d(TAG,"IOEx");
+				runOnUiThread(new Runnable(){											
+					public void run()
+					{
+						showAlert("Connection Failed","Unable to find server");
+					}
+				});
+			}													
+		}
+		
 	}
 	
-
 }

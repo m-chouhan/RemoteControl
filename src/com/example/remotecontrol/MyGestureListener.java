@@ -34,6 +34,8 @@ class MyGestureListener extends GestureDetector.SimpleOnGestureListener implemen
 	private ByteBuffer buffer = ByteBuffer.allocate(20).order(ByteOrder.LITTLE_ENDIAN);
 	private float prevdx;
 	private float prevdy;
+	private Actions currentAction;
+	private long secondTap;
     @Override
 	public boolean onDoubleTap(MotionEvent event) {
         Log.d(TAG,"onDoubleTap" );
@@ -59,6 +61,7 @@ class MyGestureListener extends GestureDetector.SimpleOnGestureListener implemen
 	
 	public void sendRawMessage(ByteBuffer buffer)
 	{
+		if(handler == null) return;
 		Message msg = handler.obtainMessage();
 		Bundle b = new Bundle();
 		b.putByteArray("RAW", buffer.array());
@@ -77,13 +80,19 @@ class MyGestureListener extends GestureDetector.SimpleOnGestureListener implemen
 
 	@Override
 	public boolean onSingleTapUp(MotionEvent event) {
-        Log.d(TAG,"onSingleTapUp" ); 
+		
 		int pindex = event.findPointerIndex(primary);
 		dx = event.getX(pindex)-dx;dy = event.getY(pindex)-dy;
+
+		Log.d(TAG,"onSingleTapUp"+ Math.hypot(dx, dy) ); 
+
+		if(Math.hypot(dx, dy) > 100 ) currentAction = Actions.RIGHT_HOLD;
+		else currentAction = Actions.LEFT_HOLD;
 		buffer.clear();
 		buffer.put(InputModes.TOUCH.getValue());
+		
 		buffer.putFloat(dx);buffer.putFloat(dy);
-		buffer.put(Actions.LEFT_HOLD.getValue());
+		buffer.put(currentAction.getValue());
 		sendRawMessage(buffer);
 		dx = event.getX(pindex);dy = event.getY(pindex);
 		return true;
@@ -94,10 +103,13 @@ class MyGestureListener extends GestureDetector.SimpleOnGestureListener implemen
 		// TODO Auto-generated method stub	        	
     	Log.d(TAG,"singleConfirm" );
     	
+    	if(currentAction == Actions.LEFT_HOLD) currentAction = Actions.LEFT_RELEASE;
+    	else currentAction = Actions.RIGHT_RELEASE;
+    	
     	buffer.clear();
 		buffer.put(InputModes.TOUCH.getValue());
 		buffer.putFloat(dx);buffer.putFloat(dy);
-		buffer.put(Actions.LEFT_RELEASE.getValue());
+		buffer.put(currentAction.getValue());
 		sendRawMessage(buffer);
 		return true;
 	}
@@ -116,14 +128,14 @@ class MyGestureListener extends GestureDetector.SimpleOnGestureListener implemen
 		switch(MotionEventCompat.getActionMasked(event))
 		{
 			case MotionEvent.ACTION_DOWN: 	{
-											primary = id;
-											Log.d(TAG,"ACTION_DOWN"+event.getDownTime()+"||"+(event.getEventTime()-event.getDownTime()));
-											dx = event.getX();dy = event.getY();
-											buffer.clear();
-											buffer.put(InputModes.ABSOLUTE_MOUSE.getValue());
-											buffer.putFloat(dx);buffer.putFloat(dy);
-											buffer.put(Actions.MOVE.getValue());
-											//sendRawMessage(buffer);
+												primary = id;
+												Log.d(TAG,"ACTION_DOWN"+event.getDownTime()+"||"+(event.getEventTime()-event.getDownTime()));
+												dx = event.getX();dy = event.getY();
+												buffer.clear();
+												buffer.put(InputModes.ABSOLUTE_MOUSE.getValue());
+												buffer.putFloat(dx);buffer.putFloat(dy);
+												buffer.put(Actions.MOVE.getValue());
+												//sendRawMessage(buffer);
 											}
 											break;
 											
@@ -153,6 +165,7 @@ class MyGestureListener extends GestureDetector.SimpleOnGestureListener implemen
 											second = id;
 											Log.d(TAG,"ACTION_POINTER_DOWN"+id);
 											pointerIndex = event.findPointerIndex(second);
+											secondTap = event.getEventTime();
 											secondx = event.getX(pointerIndex);
 											secondy = event.getY(pointerIndex);
 											
@@ -167,13 +180,27 @@ class MyGestureListener extends GestureDetector.SimpleOnGestureListener implemen
 												dx = event.getX(pindex);dy = event.getY(pindex);
 											}
 											else
-												Log.d(TAG,"SECONDRY");											
+											{
+												secondTap = event.getEventTime()-secondTap;
+												Log.d(TAG,"SECONDRY:"+secondTap);
+												if(secondTap <100)
+												{
+													buffer.clear();
+													buffer.put(InputModes.TOUCH.getValue()); 
+													//For screen based mouse movements, 0 for keyboard ,1 for accmetr bsd movmnts
+													buffer.putFloat(dx);buffer.putFloat(dy);
+													buffer.put(Actions.RIGHT_SINGLE.getValue()); 
+													sendRawMessage(buffer);
+												}
+											}
 											break;		
 			case MotionEvent.ACTION_MOVE : 
 											int pindex = event.findPointerIndex(primary);
-											int sindex = event.findPointerIndex(second);
-											if(dx == event.getX(pindex) && dy == event.getY(pindex))
+											if(dx == event.getX(pindex) && dy == event.getY(pindex) 
+													&& event.getPointerCount() > 1)
 											{
+												int sindex = event.findPointerIndex(second);
+
 												Log.d("move","SECONDRY_MOVED");
 												secondx = event.getX(sindex)-secondx;
 												secondy = event.getY(sindex)-secondy;
@@ -182,23 +209,22 @@ class MyGestureListener extends GestureDetector.SimpleOnGestureListener implemen
 												buffer.putFloat(secondx);buffer.putFloat(secondy);
 												buffer.put(Actions.ROLL.getValue());
 												Log.d(TAG,"|"+event.getX(sindex)+"|");
-												if(secondx > 0 && prevdx > 0) 
+												if(secondy > 0 && prevdy > 0) 
 												{
-																buffer.putInt(80);
-																Log.d(TAG,"RollUp");
+														buffer.putInt(50);
+														Log.d(TAG,"RollUp");
 												} 
-												else if(secondx < 0 && prevdx < 0)
+												else if(secondy < 0 && prevdy < 0)
 												{
-														buffer.putInt(-80);
+														buffer.putInt(-50);
 														Log.d(TAG,"RollDown|"+event.getX(sindex)+"|");
 												}
 												//else if(prevdx < 0) buffer.putInt(-40);
 												//else buffer.putInt(40);	
 												sendRawMessage(buffer);
-												prevdx = secondx;
+												prevdx = secondx;prevdy = secondy;
 												secondx = event.getX(sindex);secondy = event.getY(sindex);
 												return true;
-												//if();
 											}
 											else Log.d("move","PRIMARY_MOVED");
 											dx = event.getX(pindex)-dx;dy = event.getY(pindex)-dy;
