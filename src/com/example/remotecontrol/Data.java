@@ -16,7 +16,9 @@ final class Data {
 		DOWN(0x28),
 		DELETE(0x2E),
 		SPACE(0x20),
-		BACKSPACE(0x08);
+		BACKSPACE(0x08),
+		VOLUP(0xAF),
+		VOLDOWN(0xAE);
 		byte value;
 		V_KEYBUTTONS(int val){ value = (byte)val;}
 		public byte getValue(){return value;}

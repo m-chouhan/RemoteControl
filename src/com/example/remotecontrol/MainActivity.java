@@ -44,6 +44,7 @@ import android.support.v4.view.MotionEventCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.DragEvent;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -52,7 +53,9 @@ import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.SlidingDrawer;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
@@ -83,6 +86,46 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
+		
+		
+		SlidingDrawer s = (SlidingDrawer)findViewById(R.id.slidingDrawer1);
+		s.setOnDrawerCloseListener(new SlidingDrawer.OnDrawerCloseListener() {
+			
+			public void onDrawerClosed() {
+				// TODO Auto-generated method stub
+				ImageView i = (ImageView)findViewById(R.id.handle);
+				i.setImageResource(R.drawable.slide_left);
+			}
+		});
+				
+		s.setOnDrawerOpenListener(new SlidingDrawer.OnDrawerOpenListener() {
+			
+			public void onDrawerOpened() {
+				Log.d(TAG,"SDOpened");
+				ImageView i = (ImageView)findViewById(R.id.handle);
+				i.setImageResource(R.drawable.slide_right);
+			}
+		});
+
+		SlidingDrawer s2 = (SlidingDrawer)findViewById(R.id.slidingDrawer2);
+		s2.setOnDrawerCloseListener(new SlidingDrawer.OnDrawerCloseListener() {
+			
+			public void onDrawerClosed() {
+				// TODO Auto-generated method stub
+				ImageView i = (ImageView)findViewById(R.id.handle2);
+				i.setImageResource(R.drawable.slideup);
+			}
+		});
+				
+		s2.setOnDrawerOpenListener(new SlidingDrawer.OnDrawerOpenListener() {
+			
+			public void onDrawerOpened() {
+				Log.d(TAG,"SDOpened");
+				ImageView i = (ImageView)findViewById(R.id.handle2);
+				i.setImageResource(R.drawable.slide_down);
+			}
+		});
+		
 		
 		text = (TextView)findViewById(R.id.Text);
 
@@ -188,7 +231,7 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 		pb = (ProgressBar)findViewById(R.id.pb);
 
 		connected = (Button)findViewById(R.id.connect);
-		
+		/*
 		ImageButton but = (ImageButton)findViewById(R.id.down);
 		but.setOnClickListener(this);
 		but = (ImageButton)findViewById(R.id.left);
@@ -196,7 +239,7 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 		but = (ImageButton)findViewById(R.id.right);
 		but.setOnClickListener(this);
 		but = (ImageButton)findViewById(R.id.space);
-		but.setOnClickListener(this);/**/
+		but.setOnClickListener(this);
 		but = (ImageButton)findViewById(R.id.up);
 		but.setOnClickListener(this);/**/
 
@@ -258,16 +301,20 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 			     onBackPressed();
 			     return true;
 		   case KeyEvent.KEYCODE_VOLUME_UP:			   
-					Buffer.clear();
-					Buffer.put(InputModes.TOUCH.getValue());
-					Buffer.putFloat((float) (Qx.getMean()) );
-					Buffer.putFloat((float) (Qy.getMean()) );
-					Buffer.put(Actions.LEFT_HOLD.getValue());
+			   		Buffer.clear();
+					Buffer.put(InputModes.KEYBOARD.getValue());
+					Buffer.put(V_KEYBUTTONS.VOLUP.value);Buffer.put(V_KEYBUTTONS.VOLUP.value);
+					Buffer.putInt(0);
 					listen.sendRawMessage(Buffer);
 					return true;
 		   case KeyEvent.KEYCODE_VOLUME_DOWN:
-			     Toast.makeText(this,"Volumen Down pressed", Toast.LENGTH_SHORT).show();
-			     return true;
+			     //Toast.makeText(this,"Volumen Down pressed", Toast.LENGTH_SHORT).show();
+			   		Buffer.clear();
+					Buffer.put(InputModes.KEYBOARD.getValue());
+					Buffer.put(V_KEYBUTTONS.VOLDOWN.value);Buffer.put(V_KEYBUTTONS.VOLDOWN.value);
+					Buffer.putInt(0);
+					listen.sendRawMessage(Buffer);
+					return true;
 		   case KeyEvent.KEYCODE_CAPS_LOCK:
 		   case KeyEvent.KEYCODE_SPACE:case KeyEvent.KEYCODE_X:
 			     Toast.makeText(this,"CapsLock", Toast.LENGTH_SHORT).show();
@@ -300,6 +347,9 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 		return super.onKeyUp(keyCode, event);
 	}
 
+	public void onImageclick(View view){
+		Log.d(TAG,"ImageClick");
+	}
 	public void onClick(View view) {
 		
 			Log.d(TAG,"ButtonClicked");
@@ -336,6 +386,8 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 				case R.id.left:		key = V_KEYBUTTONS.LEFT;break;
 				case R.id.right:	key = V_KEYBUTTONS.RIGHT;break;
 				case R.id.space:	key = V_KEYBUTTONS.SPACE;break;
+				case R.id.backspace:key = V_KEYBUTTONS.BACKSPACE;break;
+				case R.id.enter:	key = V_KEYBUTTONS.RETURN;break;
 			}
 			if(handler == null) return;
 			Message msg = handler.obtainMessage();

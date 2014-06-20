@@ -81,7 +81,7 @@
 	        android:id="@+id/handle"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	        android:src="@drawable/up2" />
+	        android:src="@drawable/slide_left" />
        
         <RelativeLayout
             android:id="@+id/content"
@@ -95,7 +95,8 @@
 		        android:layout_below="@+id/up"
 		        android:layout_centerHorizontal="true"
 		        android:layout_marginTop="20dp"
-		        android:src="@drawable/sdown" />
+		        android:src="@drawable/sdown"
+		        android:onClick="onClick"/>
 		
 		    <ImageButton
 		        android:id="@+id/space"
@@ -105,8 +106,28 @@
 		        android:layout_below="@+id/down"
 		        android:layout_marginTop="24dp"
 		        android:src="@drawable/stop" 
-		        />
-		
+		        android:onClick="onClick"/>
+		    
+		    <ImageButton
+		        android:id="@+id/enter"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_alignLeft="@+id/right"
+		        android:layout_below="@+id/down"
+		        android:layout_marginTop="24dp"
+		        android:src="@drawable/enter" 
+       		    android:onClick="onClick"/>
+		    
+		    <ImageButton
+		        android:id="@+id/backspace"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_alignLeft="@+id/left"
+		        android:layout_below="@+id/down"
+		        android:layout_marginTop="24dp"
+		        android:src="@drawable/backspace"
+		        android:onClick="onClick"/>
+		    		    		
 		    <ImageButton
 		        android:id="@+id/right"
 		        android:layout_width="wrap_content"
@@ -115,7 +136,7 @@
 		        android:layout_marginTop="33dp"
 		        android:layout_toRightOf="@+id/space"
 		        android:src="@drawable/sright"
-		         />
+		        android:onClick="onClick"/>
 		
 		    <ImageButton
 		        android:id="@+id/left"
@@ -125,7 +146,7 @@
 		        android:layout_alignBottom="@+id/right"
 		        android:layout_toLeftOf="@+id/up"
 		        android:src="@drawable/sleft"		        
-		        />
+		        android:onClick="onClick"/>
 
 		    <ImageButton
 		        android:id="@+id/up"
@@ -133,9 +154,9 @@
 		        android:layout_height="wrap_content"
 		        android:layout_centerInParent="true"
 		        android:layout_alignRight="@+id/down"
-		        android:layout_marginTop="0dp"
+		        android:layout_marginTop="10dp"
        	        android:src="@drawable/sup"
-		        />    
+		        android:onClick="onClick"/>    
         </RelativeLayout>
 
     </SlidingDrawer>
@@ -143,7 +164,7 @@
 	<SlidingDrawer 
         android:id="@+id/slidingDrawer2"
         android:layout_width="match_parent"
-        android:layout_height="500dp"
+        android:layout_height="400dp"
         android:orientation="vertical"
         android:layout_alignParentBottom="true"
         android:content="@+id/content2"
@@ -153,28 +174,28 @@
 	        android:id="@+id/handle2"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	        android:src="@drawable/up2" />
+	        android:src="@drawable/slideup" />
 		<LinearLayout 
             android:id="@+id/content2"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" 
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" 
             android:orientation="horizontal">
-            
+		    
             <AutoCompleteTextView
+                android:layout_weight="1"
                 android:id="@+id/AutoText"
-                android:layout_width="wrap_content"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:ems="10"
                 android:hint="Enter Text Here"
-                android:textColor="#afffff" >
-            <requestFocus />
-        	</AutoCompleteTextView>
+                android:textColor="#afffff" />
 		    <ImageButton
+		        android:layout_weight="0"
 		        android:id="@+id/send"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
+		        android:layout_width="50dip"
+		        android:layout_height="50dip"
 		        android:src="@drawable/send" />            
+            
 		</LinearLayout>	    	    
-	    
 	</SlidingDrawer>
 </RelativeLayout>
