@@ -18,7 +18,11 @@ final class Data {
 		SPACE(0x20),
 		BACKSPACE(0x08),
 		VOLUP(0xAF),
-		VOLDOWN(0xAE);
+		VOLDOWN(0xAE),
+		MEDIANEXT(0xB0),
+		MEDIAPREV(0xB1),
+		PLAY(0xFA),
+		ZOOM(0xFB);
 		byte value;
 		V_KEYBUTTONS(int val){ value = (byte)val;}
 		public byte getValue(){return value;}

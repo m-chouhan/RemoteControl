@@ -49,6 +49,7 @@ import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.EditText;
@@ -61,7 +62,7 @@ import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-public class MainActivity extends Activity implements Button.OnClickListener, SensorEventListener {
+public class MainActivity extends Activity implements Button.OnClickListener, SensorEventListener, OnLongClickListener {
 
 	final String TAG = "RemoteControl";
 	
@@ -74,6 +75,7 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 
 	private float[] angle = new float[3];
 	private float stamp;
+	private boolean backgroundThread = true;
 	ByteBuffer Buffer = ByteBuffer.allocate(20).order(ByteOrder.LITTLE_ENDIAN);
 	View v;
 	private MyGestureListener listen;
@@ -86,7 +88,6 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
-		
 		
 		SlidingDrawer s = (SlidingDrawer)findViewById(R.id.slidingDrawer1);
 		s.setOnDrawerCloseListener(new SlidingDrawer.OnDrawerCloseListener() {
@@ -151,6 +152,12 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 		            {
 			            case KeyEvent.ACTION_DOWN:
 			            		Log.d("EditText", "ActionDown:"+keyCode);
+					        	if(data != null)
+					        	{
+					        		Buffer.put(data.getValue());
+					        		Buffer.put((byte)0);
+					        		listen.sendRawMessage(Buffer);
+					        	}
 			            		break;
 			            case KeyEvent.ACTION_UP:
 			            		Log.d("EditText", "ActionUP:"+keyCode);
@@ -159,23 +166,11 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 		            			Log.d("EditText", "ActionMultiple:"+keyCode);
 			            		break;
 		            }
-		        	if(data != null)
-		        	{
-		        		Buffer.put(data.getValue());
-		        		Buffer.put((byte)0);
-		        		listen.sendRawMessage(Buffer);
-		        	}
-		            return true;
+		            return false;
 		        }
-		    });/**//*
-		et.setOnEditorActionListener(new OnEditorActionListener(){
-
-			public boolean onEditorAction(TextView arg0, int arg1, KeyEvent arg2) {
-				// TODO Auto-generated method stub
-				Log.d("EditText","OnEditorAction");
-				return false;
-			}});/* */
-		et.addTextChangedListener(new TextWatcher(){
+		    });		
+		
+			et.addTextChangedListener(new TextWatcher(){
 
 			public void afterTextChanged(Editable arg0) {
 				// TODO Auto-generated method stub
@@ -201,7 +196,7 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 						int i = 0;
 						for(;i<(prev.length()-commonChars);++i)
 							Buffer.put(V_KEYBUTTONS.BACKSPACE.getValue());
-					//	Log.d("EditText","Backspaces:"+i+"  common"+commonChars+prev+":"+current);
+						Log.d("EditText","Backspaces:"+i+"  common"+commonChars+prev+":"+current);
 						byte text[] = current.substring(commonChars).getBytes("US-ASCII");
 						Buffer.put(text);Buffer.put((byte) 0);
 						listen.sendRawMessage(Buffer);
@@ -228,23 +223,17 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 				return i;
 			}
 		});
+
+		((ImageButton)findViewById(R.id.backspace)).setOnLongClickListener(this);
+		((ImageButton)findViewById(R.id.enter)).setOnLongClickListener(this);
+		((ImageButton)findViewById(R.id.up)).setOnLongClickListener(this);
+		((ImageButton)findViewById(R.id.down)).setOnLongClickListener(this);
+		((ImageButton)findViewById(R.id.left)).setOnLongClickListener(this);
+		((ImageButton)findViewById(R.id.right)).setOnLongClickListener(this);
+		((ImageButton)findViewById(R.id.space)).setOnLongClickListener(this);
+
 		pb = (ProgressBar)findViewById(R.id.pb);
-
 		connected = (Button)findViewById(R.id.connect);
-		/*
-		ImageButton but = (ImageButton)findViewById(R.id.down);
-		but.setOnClickListener(this);
-		but = (ImageButton)findViewById(R.id.left);
-		but.setOnClickListener(this);
-		but = (ImageButton)findViewById(R.id.right);
-		but.setOnClickListener(this);
-		but = (ImageButton)findViewById(R.id.space);
-		but.setOnClickListener(this);
-		but = (ImageButton)findViewById(R.id.up);
-		but.setOnClickListener(this);/**/
-
-		//B = (Button)findViewById(R.id.connect);
-		//but.setOnClickListener(this);
 		v = (View)findViewById(R.id.view1);
 		getApplicationContext();
 		sm = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
@@ -255,9 +244,19 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 	}
 	
 	@Override
+	protected void onResume() {
+		super.onResume();
+		backgroundThread = true;
+		multipress = new MultipressThread();		
+		multipress.start();		
+	}
+
+	@Override
 	public void onStop()
 	{
 		super.onStop();
+		backgroundThread = false;
+		multipress.interrupt();
 		//sm.unregisterListener(this);
 		//sm.unregisterListener(this, sm.getDefaultSensor(Sensor.TYPE_ORIENTATION));
 		//sm.unregisterListener(this, sm.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD));
@@ -354,8 +353,7 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 		
 			Log.d(TAG,"ButtonClicked");
 			if(view.getId() == R.id.connect) 
-			{
-				//Log.d(TAG,getBroadcastAddr().toString());
+			{				
 				pb.setVisibility(View.VISIBLE);
 				connected.setText("connecting..");
 				Log.d(TAG,"H:"+v.getHeight()+"W:"+v.getWidth());
@@ -394,6 +392,7 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 			msg.arg1 = key.getValue();msg.what = Data.KEYBOARD;
 			
 			handler.sendMessage(msg);/**/
+			multipress.Unpress();
 			Log.d("TAG", "OnClick:"+key);
 		} 			
 
@@ -564,6 +563,62 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 			}													
 		}
 		
+		
+		
+	}
+
+	public boolean onLongClick(View v) {
+		byte key = 0;
+		Log.d(TAG,"LongClicked");
+		switch(v.getId())
+		{
+			case R.id.up  : 	key = V_KEYBUTTONS.UP.value;break;
+			case R.id.down:		key = V_KEYBUTTONS.DOWN.value;break;
+			case R.id.left:		key = V_KEYBUTTONS.LEFT.value;break;
+			case R.id.right:	key = V_KEYBUTTONS.RIGHT.value;break;
+			case R.id.space:	key = V_KEYBUTTONS.SPACE.value;break;
+			case R.id.backspace:key = V_KEYBUTTONS.BACKSPACE.value;break;
+			case R.id.enter:	key = V_KEYBUTTONS.RETURN.value;break;
+		}
+		multipress.ButtonPressed(key);
+		return false;
+	}
+	
+	private MultipressThread multipress;
+	private class MultipressThread extends Thread{
+		public  boolean pressed = false;
+		public  byte key = 0;
+		public void ButtonPressed(byte key)
+		{
+			this.key = key;
+			pressed = true;
+			Log.d(TAG,"ButtonPressed"+pressed);
+		}
+		public void Unpress()
+		{
+			pressed = false;
+			key = 0;
+		}
+		public void run()
+		{
+			while(backgroundThread)
+			{
+				try 
+				{
+					while(!pressed) sleep(1200);
+					Buffer.clear();
+					Log.d(TAG,"InsideLoop");
+					Buffer.put(InputModes.KEYBOARD.getValue());
+					Buffer.put(key);Buffer.put((byte)0);
+					listen.sendRawMessage(Buffer);				
+
+					this.sleep(60);
+				} 
+				catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 	
 }
