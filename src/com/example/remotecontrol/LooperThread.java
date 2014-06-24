@@ -8,6 +8,7 @@ import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
 import java.util.Enumeration;
 import java.util.List;
 
@@ -25,8 +26,8 @@ class LooperThread extends Thread{
 	private InetAddress server_ip;
 	private DatagramSocket Dsocket;
 	private static final int SERVERPORT = 19000;
-	private String SERVER_IP = "192.168.43.156";
-	private Handler handler ;
+	private String SERVER_IP = "";
+	private static Handler handler ;
 	private MainActivity main;
 	static final String TAG = "LooperThread";
 	public Handler getHandler() {
@@ -37,6 +38,17 @@ class LooperThread extends Thread{
 		super();
 		this.main = main;
 	}
+	
+	public static void sendRawMessage(ByteBuffer buffer)
+	{
+		if(handler == null) return;
+		Message msg = handler.obtainMessage();
+		Bundle b = new Bundle();
+		b.putByteArray("RAW", buffer.array());
+		msg.setData(b);msg.what = Data.RAW;
+		handler.sendMessage(msg);
+	}
+
 	public void run()
 	{
 		try{
@@ -46,13 +58,12 @@ class LooperThread extends Thread{
 		} catch (SocketException e1) {
 			e1.printStackTrace();return;
 		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} 
 		
 		Looper.prepare();
 		handler = new Handler(){
-			private static final String TAG = "SocketHandlerThread";
+			private static final String TAG = "HandlerLooperThread";
 			
 			public void handleMessage(Message msg)
 			{

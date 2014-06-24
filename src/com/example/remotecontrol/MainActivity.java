@@ -1,22 +1,9 @@
 package com.example.remotecontrol;
 
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.InterfaceAddress;
-import java.net.NetworkInterface;
-import java.net.Socket;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.charset.Charset;
-import java.util.Enumeration;
-import java.util.List;
-
 import com.example.remotecontrol.Data.Actions;
 import com.example.remotecontrol.Data.InputModes;
 import com.example.remotecontrol.Data.V_KEYBUTTONS;
@@ -24,33 +11,21 @@ import com.example.remotecontrol.Data.V_KEYBUTTONS;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.IntentService;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
-import android.hardware.SensorListener;
 import android.hardware.SensorManager;
-import android.net.DhcpInfo;
-import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
 import android.support.v4.view.GestureDetectorCompat;
-import android.support.v4.view.MotionEventCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.DragEvent;
-import android.view.GestureDetector;
 import android.view.KeyEvent;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnLongClickListener;
-import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -58,7 +33,6 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.SlidingDrawer;
 import android.widget.TextView;
-import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -133,99 +107,13 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 		text = (TextView)findViewById(R.id.Text);
 
 		Et = (EditText)findViewById(R.id.AutoText);
-		Et.setOnKeyListener(new View.OnKeyListener() {
-			
-		        public boolean onKey(View v, int keyCode, KeyEvent event) {
+		TextMonitor tmon = new TextMonitor(Et);
+		((ImageButton)findViewById(R.id.reset)).setOnClickListener(tmon);
 
-        			Buffer.clear();
-        			Buffer.put(InputModes.TEXT.getValue());
-        			
-        			V_KEYBUTTONS data = null;
-            		switch(keyCode)
-            		{
-            			case KeyEvent.KEYCODE_ENTER:
-            					data = V_KEYBUTTONS.RETURN;
-            					break;
-            			case KeyEvent.KEYCODE_DEL:
-            					data = V_KEYBUTTONS.BACKSPACE;
-            					break;
-            		}
-		        	switch(event.getAction())
-		            {
-			            case KeyEvent.ACTION_DOWN:
-			            		Log.d("EditText", "ActionDown:"+keyCode);
-					        	if(data != null)
-					        	{
-					        		Buffer.put(data.getValue());
-					        		Buffer.put((byte)0);
-					        		listen.sendRawMessage(Buffer);
-					        	}
-			            		break;
-			            case KeyEvent.ACTION_UP:
-			            		Log.d("EditText", "ActionUP:"+keyCode);
-			            		break;
-			            case KeyEvent.ACTION_MULTIPLE:
-		            			Log.d("EditText", "ActionMultiple:"+keyCode);
-			            		break;
-		            }
-		            return false;
-		        }
-		    });		
+//		Et.setOnKeyListener(tmon);		
 		
-			Et.addTextChangedListener(new TextWatcher(){
-
-			public void afterTextChanged(Editable arg0) {
-				// TODO Auto-generated method stub
-				//Log.d("Edittext", "after"+arg0.toString());
-				
-			}
-
-			public void beforeTextChanged(CharSequence s, int start, int count,
-					int after) {
-				// TODO Auto-generated method stub
-				
-			}
-			String prev="";
-			ByteBuffer Buffer = ByteBuffer.allocate(80).order(ByteOrder.LITTLE_ENDIAN);
-			public void onTextChanged(CharSequence s, int start, int before,
-					int count) {
-				// TODO Auto-generated method stub
-				String current = s.toString();
-				int commonChars = Compare(current,prev);
-				try {
-						Buffer.clear();
-						Buffer.put(InputModes.TEXT.getValue());
-						int i = 0;
-						for(;i<(prev.length()-commonChars);++i)
-							Buffer.put(V_KEYBUTTONS.BACKSPACE.getValue());
-						Log.d("EditText","Backspaces:"+i+"  common"+commonChars+prev+":"+current);
-						byte text[] = current.substring(commonChars).getBytes("US-ASCII");
-						Buffer.put(text);Buffer.put((byte) 0);
-						listen.sendRawMessage(Buffer);
-						prev = current;
-						} catch (UnsupportedEncodingException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				//Log.d("EditText",s.toString()+":"+start+":"+before+":"+count);
-			}
-			
-			public int Compare(String s1,String s2)
-			{
-				if(s1.length() == 0 || s2.length() == 0) return 0;
-				int len = Math.min(s1.length(), s2.length()),i = 0;
-				Log.d("EditTExt","minlength"+len);
-				try{
-					while(i<len && s1.charAt(i) == s2.charAt(i))
-					i++;
-				}catch(IndexOutOfBoundsException e){
-					Log.d("EditText","OutofBounds"+i);
-					return 0;
-				}
-				return i;
-			}
-		});
-
+//		Et.addTextChangedListener(tmon);
+		
 		((ImageButton)findViewById(R.id.backspace)).setOnLongClickListener(this);
 		((ImageButton)findViewById(R.id.enter)).setOnLongClickListener(this);
 		((ImageButton)findViewById(R.id.up)).setOnLongClickListener(this);
@@ -306,7 +194,7 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 					Buffer.put(InputModes.KEYBOARD.getValue());
 					Buffer.put(V_KEYBUTTONS.VOLUP.value);Buffer.put(V_KEYBUTTONS.VOLUP.value);
 					Buffer.putInt(0);
-					listen.sendRawMessage(Buffer);
+					LooperThread.sendRawMessage(Buffer);
 					return true;
 		   case KeyEvent.KEYCODE_VOLUME_DOWN:
 			     //Toast.makeText(this,"Volumen Down pressed", Toast.LENGTH_SHORT).show();
@@ -314,7 +202,7 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 					Buffer.put(InputModes.KEYBOARD.getValue());
 					Buffer.put(V_KEYBUTTONS.VOLDOWN.value);Buffer.put(V_KEYBUTTONS.VOLDOWN.value);
 					Buffer.putInt(0);
-					listen.sendRawMessage(Buffer);
+					LooperThread.sendRawMessage(Buffer);
 					return true;
 		   case KeyEvent.KEYCODE_CAPS_LOCK:
 		   case KeyEvent.KEYCODE_SPACE:case KeyEvent.KEYCODE_X:
@@ -342,30 +230,13 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 			Buffer.putFloat((float) (Qx.getMean()) );
 			Buffer.putFloat((float) (Qy.getMean()) );
 			Buffer.put(Actions.LEFT_RELEASE.getValue());
-			listen.sendRawMessage(Buffer);
+			LooperThread.sendRawMessage(Buffer);
 			return true;
 		}
 		return super.onKeyUp(keyCode, event);
 	}
 
 	public void resetText(View view) {
-		try 
-		{			
-			String text = Et.getText().toString();
-			Buffer.clear();
-			Buffer.put(InputModes.TEXT.getValue());
-			int i = 0;
-			for(;i<text.length();++i)
-				Buffer.put(V_KEYBUTTONS.BACKSPACE.getValue());
-			byte data[] = text.getBytes("US-ASCII");
-			Buffer.put(data);Buffer.put((byte) 0);
-			listen.sendRawMessage(Buffer);
-			
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		Et.setText("");
 	}
 	public void onClick(View view) {
 		
@@ -374,7 +245,7 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 			{				
 				pb.setVisibility(View.VISIBLE);
 				connected.setText("connecting..");
-				Log.d(TAG,"H:"+v.getHeight()+"W:"+v.getWidth());
+				//Log.d(TAG,"H:"+v.getHeight()+"W:"+v.getWidth());
 				LooperThread background = new LooperThread(this);
 				background.start();
 				try {
@@ -383,7 +254,7 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				listen.handler = handler = background.getHandler();
+				handler = background.getHandler();
 				Message msg = handler.obtainMessage();
 				msg.what = Data.BROADCAST ;
 				handler.sendMessage(msg);/**/
@@ -440,7 +311,7 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 			Buffer.putFloat((float) (Math.toDegrees(Qx.getMean())) );
 			Buffer.putFloat((float) (Math.toDegrees(Qy.getMean())) );
 			Buffer.putLong(event.timestamp);
-			listen.sendRawMessage(Buffer);
+			LooperThread.sendRawMessage(Buffer);
 		}
 		else if(event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
 			System.arraycopy(event.values, 0,accelro,0, 3);
@@ -499,7 +370,7 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 					Log.d(TAG,"InsideLoop");
 					Buffer.put(InputModes.KEYBOARD.getValue());
 					Buffer.put(key);Buffer.put((byte)0);
-					listen.sendRawMessage(Buffer);				
+					LooperThread.sendRawMessage(Buffer);				
 
 					this.sleep(60);
 				} 

@@ -28,7 +28,7 @@ class MyGestureListener extends GestureDetector.SimpleOnGestureListener implemen
     private static final String TAG = "Gestures"; 
     boolean doubletap = false;
     GestureDetectorCompat gd;
-    Handler handler;
+    //Handler handler;
 	private float secondx;
 	private float secondy;
 	private ByteBuffer buffer = ByteBuffer.allocate(20).order(ByteOrder.LITTLE_ENDIAN);
@@ -59,16 +59,6 @@ class MyGestureListener extends GestureDetector.SimpleOnGestureListener implemen
 		return super.onDoubleTapEvent(e);
 	}
 	
-	public void sendRawMessage(ByteBuffer buffer)
-	{
-		if(handler == null) return;
-		Message msg = handler.obtainMessage();
-		Bundle b = new Bundle();
-		b.putByteArray("RAW", buffer.array());
-		msg.setData(b);msg.what = Data.RAW;
-		handler.sendMessage(msg);
-	}
-
 	@Override
 	public boolean onDown(MotionEvent event) {
 		// TODO Auto-generated method stub
@@ -93,7 +83,7 @@ class MyGestureListener extends GestureDetector.SimpleOnGestureListener implemen
 		
 		buffer.putFloat(dx);buffer.putFloat(dy);
 		buffer.put(currentAction.getValue());
-		sendRawMessage(buffer);
+		LooperThread.sendRawMessage(buffer);
 		dx = event.getX(pindex);dy = event.getY(pindex);
 		return true;
 	}
@@ -110,7 +100,7 @@ class MyGestureListener extends GestureDetector.SimpleOnGestureListener implemen
 		buffer.put(InputModes.TOUCH.getValue());
 		buffer.putFloat(dx);buffer.putFloat(dy);
 		buffer.put(currentAction.getValue());
-		sendRawMessage(buffer);
+		LooperThread.sendRawMessage(buffer);
 		return true;
 	}
 
@@ -135,7 +125,7 @@ class MyGestureListener extends GestureDetector.SimpleOnGestureListener implemen
 												buffer.put(InputModes.ABSOLUTE_MOUSE.getValue());
 												buffer.putFloat(dx);buffer.putFloat(dy);
 												buffer.put(Actions.MOVE.getValue());
-												//sendRawMessage(buffer);
+												//LooperThread.sendRawMessage(buffer);
 											}
 											break;
 											
@@ -149,7 +139,7 @@ class MyGestureListener extends GestureDetector.SimpleOnGestureListener implemen
 												buffer.put(Actions.LEFT_RELEASE.getValue()); 
 												//Action. Refer to severside code for mouse actions (1 for left click & release)
 												// 3 for left hold and 4 for left release
-												sendRawMessage(buffer);
+												LooperThread.sendRawMessage(buffer);
 												if(timeelasped < 400)
 												{
 													buffer.clear();
@@ -157,7 +147,7 @@ class MyGestureListener extends GestureDetector.SimpleOnGestureListener implemen
 													//For screen based mouse movements, 0 for keyboard ,1 for accmetr bsd movmnts
 													buffer.putFloat(dx);buffer.putFloat(dy);
 													buffer.put(Actions.LEFT_SINGLE.getValue()); 
-													sendRawMessage(buffer);
+													LooperThread.sendRawMessage(buffer);
 												}
 												doubletap = false;}
 											break;
@@ -190,7 +180,7 @@ class MyGestureListener extends GestureDetector.SimpleOnGestureListener implemen
 													//For screen based mouse movements, 0 for keyboard ,1 for accmetr bsd movmnts
 													buffer.putFloat(dx);buffer.putFloat(dy);
 													buffer.put(Actions.RIGHT_SINGLE.getValue()); 
-													sendRawMessage(buffer);
+													LooperThread.sendRawMessage(buffer);
 												}
 											}
 											break;		
@@ -221,7 +211,7 @@ class MyGestureListener extends GestureDetector.SimpleOnGestureListener implemen
 												}
 												//else if(prevdx < 0) buffer.putInt(-40);
 												//else buffer.putInt(40);	
-												sendRawMessage(buffer);
+												LooperThread.sendRawMessage(buffer);
 												prevdx = secondx;prevdy = secondy;
 												secondx = event.getX(sindex);secondy = event.getY(sindex);
 												return true;
@@ -232,7 +222,7 @@ class MyGestureListener extends GestureDetector.SimpleOnGestureListener implemen
 											buffer.put(InputModes.TOUCH.getValue());
 											buffer.putFloat(dx);buffer.putFloat(dy);
 											buffer.put(Actions.MOVE.getValue());
-											sendRawMessage(buffer);
+											LooperThread.sendRawMessage(buffer);
 											dx = event.getX(pindex);dy = event.getY(pindex);
 											//Log.d(TAG,"ACTION_MOVE:"+id);										   
 		}

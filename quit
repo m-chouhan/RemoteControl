@@ -1,0 +1,54 @@
+[33mcommit 9680c825440231b867a95806754638eafaeac9b8[m
+Author: Mahendra Chouhan <montyc008@gmail.com>
+Date:   Wed Jun 25 02:19:59 2014 +0530
+
+    seperated code for Looper Thread
+
+[33mcommit ec37e996ac97d57bf3f61db3d1a1209ecdff976c[m
+Author: Mahendra Chouhan <montyc008@gmail.com>
+Date:   Mon Jun 23 13:57:46 2014 +0530
+
+    Added longclicklistener
+
+[33mcommit 7272616a27397c2351f11fb84766e25ffab78b20[m
+Author: Mahendra Chouhan <montyc008@gmail.com>
+Date:   Fri Jun 20 20:01:18 2014 +0530
+
+    Added return/backspace
+
+[33mcommit fde0fa32975fe8810f96a8db933682ac7b4f9604[m
+Author: Mahendra Chouhan <montyc008@gmail.com>
+Date:   Thu Jun 12 02:26:42 2014 +0530
+
+    gui updated
+
+[33mcommit 064e2726b22f556905d6da7756e0ec54469bbedf[m
+Author: Mahendra Chouhan <montyc008@gmail.com>
+Date:   Sat May 24 16:01:01 2014 +0530
+
+    added button images
+
+[33mcommit 328ef2cf2cc58fc81e9dad6236c44c117a4656c2[m
+Author: Mahendra Chouhan <montyc008@gmail.com>
+Date:   Mon May 12 16:39:18 2014 +0530
+
+    Added buttons
+
+[33mcommit 1f1e583d5002d58ba190b51ad53efcb21b3a83eb[m
+Merge: fad2b19 c54abc7
+Author: Mahendra Chouhan <montyc008@gmail.com>
+Date:   Mon May 12 11:23:34 2014 +0530
+
+    Merge branch 'master' of https://github.com/montyc008/RemoteControl
+
+[33mcommit c54abc7dc69e65a8711185d74d7046993f407123[m
+Author: Mahendra Chouhan <montyc008@gmail.com>
+Date:   Sun May 11 22:52:13 2014 -0700
+
+    Initial commit
+
+[33mcommit fad2b19cebab7baa68c835a9b29080288a4b00b2[m
+Author: Mahendra Chouhan <montyc008@gmail.com>
+Date:   Mon May 12 11:21:28 2014 +0530
+
+    Working Client Side
