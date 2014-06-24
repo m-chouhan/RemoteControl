@@ -80,9 +80,11 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 	View v;
 	private MyGestureListener listen;
 
-	private ProgressBar pb;
+	public ProgressBar pb;
 
-	private Button connected;
+	public Button connected;
+
+	private EditText Et;
 	@SuppressWarnings("deprecation")
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -130,8 +132,8 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 		
 		text = (TextView)findViewById(R.id.Text);
 
-		EditText et = (EditText)findViewById(R.id.AutoText);
-		et.setOnKeyListener(new View.OnKeyListener() {
+		Et = (EditText)findViewById(R.id.AutoText);
+		Et.setOnKeyListener(new View.OnKeyListener() {
 			
 		        public boolean onKey(View v, int keyCode, KeyEvent event) {
 
@@ -170,7 +172,7 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 		        }
 		    });		
 		
-			et.addTextChangedListener(new TextWatcher(){
+			Et.addTextChangedListener(new TextWatcher(){
 
 			public void afterTextChanged(Editable arg0) {
 				// TODO Auto-generated method stub
@@ -346,8 +348,24 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 		return super.onKeyUp(keyCode, event);
 	}
 
-	public void onImageclick(View view){
-		Log.d(TAG,"ImageClick");
+	public void resetText(View view) {
+		try 
+		{			
+			String text = Et.getText().toString();
+			Buffer.clear();
+			Buffer.put(InputModes.TEXT.getValue());
+			int i = 0;
+			for(;i<text.length();++i)
+				Buffer.put(V_KEYBUTTONS.BACKSPACE.getValue());
+			byte data[] = text.getBytes("US-ASCII");
+			Buffer.put(data);Buffer.put((byte) 0);
+			listen.sendRawMessage(Buffer);
+			
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		Et.setText("");
 	}
 	public void onClick(View view) {
 		
@@ -357,7 +375,7 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 				pb.setVisibility(View.VISIBLE);
 				connected.setText("connecting..");
 				Log.d(TAG,"H:"+v.getHeight()+"W:"+v.getWidth());
-				Thread background = new LooperThread();
+				LooperThread background = new LooperThread(this);
 				background.start();
 				try {
 					Thread.sleep(1000);
@@ -365,7 +383,7 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				listen.handler = handler;
+				listen.handler = handler = background.getHandler();
 				Message msg = handler.obtainMessage();
 				msg.what = Data.BROADCAST ;
 				handler.sendMessage(msg);/**/
@@ -409,32 +427,7 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 		pb.setVisibility(View.INVISIBLE);
 		connected.setText("Connect Again");
 	}
-	
-	private InetAddress getBroadcastAddr() 
-	{
-		InetAddress bcast = null;
-		System.setProperty("java.net.preferIPv4Stack","true");
-		try
-		{
-			Enumeration<NetworkInterface> nienum = NetworkInterface.getNetworkInterfaces();
-			while(nienum.hasMoreElements())
-			{
-				NetworkInterface ni = nienum.nextElement();
-				if(!ni.isLoopback())
-				{
-					List<InterfaceAddress> addresses = ni.getInterfaceAddresses();
-					for(InterfaceAddress iaddr :addresses)
-					{
-						InetAddress addr = iaddr.getBroadcast();
-						if(addr != null) bcast = addr;						
-					}
-				}				
-			}
-			
-		}catch (SocketException e){ e.printStackTrace();}
-		return bcast;
-	}
-	
+		
 	float[] accelro = new float[3];float []mag = new float[3];
 	float[] rotationmat = new float[9];float []orient = new float[3];
 	public void onSensorChanged(SensorEvent event) {
@@ -461,110 +454,6 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 		text.setText("a = "+xdeg+"\t"+mag[0]+"\nb = "+ ydeg +
 					 "\t"+mag[1]+"\nc = "+Math.toDegrees(Qz.getMean()) +
 					 "\nSum"+(Math.toDegrees(Qx.getMean()) + Math.toDegrees(Qy.getMean())*Math.sin(Qz.getMean())) );
-	}
-	class LooperThread extends Thread{
-		//For handling message passing through socket
-		private InetAddress server_ip;
-		private DatagramSocket Dsocket;
-		private static final int SERVERPORT = 19000;
-		private String SERVER_IP = "192.168.43.156";
-
-		public void run()
-		{
-			try{
-				Dsocket = new DatagramSocket();
-				Dsocket.setSoTimeout(4000);
-				server_ip = InetAddress.getByName(SERVER_IP);
-
-			} catch (SocketException e1) {
-				e1.printStackTrace();return;
-			} catch (UnknownHostException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} 
-			
-			Looper.prepare();
-			handler = new Handler(){
-				private static final String TAG = "SocketHandlerThread";
-				
-				public void handleMessage(Message msg)
-				{
-					DatagramPacket packet = null;;
-					switch(msg.what)
-					{
-						case Data.KEYBOARD:
-									byte []key = new byte[]{(byte) InputModes.KEYBOARD.getValue(),(byte)msg.arg1};
-									packet = new DatagramPacket(key,key.length,server_ip,SERVERPORT);
-									break;
-						case Data.RAW:		
-									Bundle bundle = msg.getData();
-									byte []buff = bundle.getByteArray("RAW");
-									packet = new DatagramPacket(buff,buff.length,server_ip,SERVERPORT);
-									break;
-						case Data.BROADCAST:		
-									handleBroadcast();
-									return;										
-					}
-					
-					//Log.d(TAG, "Handler:"+msg.what);
-					try {
-						Dsocket.send(packet);
-						Log.d(TAG,"SENT...");
-					} catch (IOException e) {
-						e.printStackTrace();}
-				}		
-			};
-			Looper.loop();
-		}
-		private void handleBroadcast(){
-			byte []arr = new byte[5];
-			arr[0] = 4;  //dummy packet :)									
-			try {
-				Log.d(TAG,"Broadcasting..");
-				InetAddress bcast = getBroadcastAddr();
-				if(bcast == null) 
-				{
-					runOnUiThread(new Runnable(){
-				
-						public void run()
-						{
-							showAlert("Connection Failed","Please Connect to wifi");
-						}
-					});
-					return;
-				}
-				DatagramPacket packet = new DatagramPacket(arr,arr.length,bcast,SERVERPORT);
-				Dsocket.send(packet);
-				Dsocket.receive(packet);
-				Log.d(TAG,"Address::"+packet.getAddress().toString());
-				server_ip = packet.getAddress();
-				runOnUiThread(new Runnable(){
-					public void run()
-					{
-						pb.setVisibility(View.INVISIBLE);
-						connected.setText("connected");
-					}
-				});
-				
-			} catch (UnknownHostException e1) {
-				// TODO Auto-generated catch block
-				Log.d(TAG,"UnknownHost");
-				e1.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				Log.d(TAG,"IOEx");
-				runOnUiThread(new Runnable(){											
-					public void run()
-					{
-						showAlert("Connection Failed","Unable to find server");
-					}
-				});
-			}													
-		}
-		
-		
-		
 	}
 
 	public boolean onLongClick(View v) {

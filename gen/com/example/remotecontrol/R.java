@@ -78,8 +78,8 @@ public final class R {
         public static final int handle2=0x7f080014;
         public static final int left=0x7f080011;
         public static final int pb=0x7f080005;
+        public static final int reset=0x7f080016;
         public static final int right=0x7f08000f;
-        public static final int send=0x7f080016;
         public static final int slidingDrawer1=0x7f080008;
         public static final int slidingDrawer2=0x7f080012;
         public static final int space=0x7f08000d;

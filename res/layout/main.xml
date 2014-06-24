@@ -58,6 +58,7 @@
         android:id="@+id/Text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textColor="#ffffff"
         android:layout_alignParentBottom="true" >
     </TextView>
 
@@ -190,10 +191,11 @@
                 android:textColor="#afffff" />
 		    <ImageButton
 		        android:layout_weight="0"
-		        android:id="@+id/send"
-		        android:layout_width="50dip"
-		        android:layout_height="50dip"
-		        android:src="@drawable/send" />            
+		        android:id="@+id/reset"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:src="@drawable/send" 
+		        android:onClick="resetText"/>            
             
 		</LinearLayout>	    	    
 	</SlidingDrawer>
