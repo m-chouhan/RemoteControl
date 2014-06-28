@@ -1,201 +1,260 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/RelativeLayout1"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:background="@drawable/back2"
-    android:orientation="vertical" >
-
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal" >
-
-        <EditText
-            android:id="@+id/EditText01"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:hint="Enter SERVER "
-            android:visibility="gone" />
-
-        <Button
-            android:id="@+id/connect"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:indeterminate="false"
-            android:drawableLeft="@drawable/connect"
-            android:onClick="onClick"
-            android:text="connect" />
-
-        <ToggleButton
-            android:id="@+id/toggleButton1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="onToggleClicked"
-            android:background="@null"
-            android:textOn="ON"
-            android:textOff="OFF"
-            android:button="@drawable/toggle"/>
-
-        <ToggleButton
-            android:id="@+id/toggleButton2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="ToggleButton"
-            android:textOff="Keyboard \nOFF"
-            android:textOn="Keyboard \nON" />
-
-        <ProgressBar
-            android:id="@+id/pb"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:indeterminate="false"
-            android:visibility="invisible" />
-
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/Text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="#ffffff"
-        android:layout_alignParentBottom="true" >
-    </TextView>
-
-    <View
-        android:id="@+id/view1"
-        android:layout_width="fill_parent"
-        android:layout_height="400dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true" />
-
-    <SlidingDrawer
-        android:id="@+id/slidingDrawer1"
-        android:layout_width="300dp"
-        android:layout_height="match_parent"
-        android:orientation="horizontal"
-        android:layout_alignParentRight="true"
-        android:content="@+id/content"
-        android:handle="@+id/handle" >
-        
-	    <ImageView
-	        android:id="@+id/handle"
+<!--  
+<android.support.v4.widget.DrawerLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/drawer_layout"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent" >
+	-->	
+	<RelativeLayout 
+        xmlns:android="http://schemas.android.com/apk/res/android"
+	    android:id="@+id/RelativeLayout1"
+	    android:layout_width="fill_parent"
+	    android:layout_height="fill_parent"
+	    android:background="@drawable/back2"
+	    android:orientation="vertical" >
+	
+	    <LinearLayout
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:orientation="horizontal"
+	        android:id="@+id/linear1">"
+	
+	        <Button
+	            android:id="@+id/connect"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:drawableLeft="@drawable/connect"
+	            android:indeterminate="false"
+	            android:onClick="onClick"
+	            android:text="connect" />
+	
+	        <ToggleButton
+	            android:id="@+id/toggleButton1"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:background="@null"
+	            android:button="@drawable/toggle"
+	            android:onClick="onToggleClicked"
+	            android:textOff="OFF"
+	            android:textOn="ON" />
+	
+	        <ToggleButton
+	            android:id="@+id/toggleButton2"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:text="ToggleButton"
+	            android:textOff="Keyboard \nOFF"
+	            android:textOn="Keyboard \nON"             
+	            android:visibility="gone"/>
+	
+	        <ProgressBar
+	            android:id="@+id/pb"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:indeterminate="false"
+	            android:visibility="invisible" />
+	        <AutoCompleteTextView
+	            android:id="@+id/AutoText"
+	            android:layout_width="fill_parent"
+	            android:layout_height="wrap_content"
+	            android:layout_weight="1"
+	            android:hint="Enter Text Here"
+	            android:textColor="#afffff" />
+	        <ImageButton
+	            android:id="@+id/reset"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_weight="0"
+	            android:src="@drawable/send" />        
+	    </LinearLayout>
+	
+	    <LinearLayout
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	        android:src="@drawable/slide_left" />
-       
-        <RelativeLayout
-            android:id="@+id/content"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" >
-		
-		    <ImageButton
-		        android:id="@+id/down"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        android:layout_below="@+id/up"
-		        android:layout_centerHorizontal="true"
-		        android:layout_marginTop="20dp"
-		        android:src="@drawable/sdown"
-		        android:onClick="onClick"/>
-		
-		    <ImageButton
-		        android:id="@+id/space"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        android:layout_alignLeft="@+id/down"
-		        android:layout_below="@+id/down"
-		        android:layout_marginTop="24dp"
-		        android:src="@drawable/stop" 
-		        android:onClick="onClick"/>
-		    
-		    <ImageButton
-		        android:id="@+id/enter"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        android:layout_alignLeft="@+id/right"
-		        android:layout_below="@+id/down"
-		        android:layout_marginTop="24dp"
-		        android:src="@drawable/enter" 
-       		    android:onClick="onClick"/>
-		    
-		    <ImageButton
-		        android:id="@+id/backspace"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        android:layout_alignLeft="@+id/left"
-		        android:layout_below="@+id/down"
-		        android:layout_marginTop="24dp"
-		        android:src="@drawable/backspace"
-		        android:onClick="onClick"/>
-		    		    		
-		    <ImageButton
-		        android:id="@+id/right"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        android:layout_alignTop="@+id/up"
-		        android:layout_marginTop="33dp"
-		        android:layout_toRightOf="@+id/space"
-		        android:src="@drawable/sright"
-		        android:onClick="onClick"/>
-		
-		    <ImageButton
-		        android:id="@+id/left"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        android:layout_alignBaseline="@+id/right"
-		        android:layout_alignBottom="@+id/right"
-		        android:layout_toLeftOf="@+id/up"
-		        android:src="@drawable/sleft"		        
-		        android:onClick="onClick"/>
-
-		    <ImageButton
-		        android:id="@+id/up"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        android:layout_centerInParent="true"
-		        android:layout_alignRight="@+id/down"
-		        android:layout_marginTop="10dp"
-       	        android:src="@drawable/sup"
-		        android:onClick="onClick"/>    
-        </RelativeLayout>
-
-    </SlidingDrawer>
-    
-	<SlidingDrawer 
-        android:id="@+id/slidingDrawer2"
-        android:layout_width="match_parent"
-        android:layout_height="400dp"
-        android:orientation="vertical"
-        android:layout_alignParentBottom="true"
-        android:content="@+id/content2"
-        android:handle="@+id/handle2" >
-        
-	    <ImageView
-	        android:id="@+id/handle2"
+	        android:layout_alignParentBottom="true"
+	        android:orientation="horizontal"
+	        android:id="@+id/linear2">
+	
+	        <ImageButton
+	            android:id="@+id/windows"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:onClick="onClick"
+	            android:src="@drawable/windows" />
+	        
+	        <ImageButton
+	            android:id="@+id/explorer"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:onClick="onClick"
+	            android:src="@drawable/explorer" />
+	        <ImageButton
+	            android:id="@+id/browser"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:onClick="onClick"
+	            android:src="@drawable/browser" />
+	        
+	    </LinearLayout>
+	
+	    <TextView
+	        android:id="@+id/Text"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	        android:src="@drawable/slideup" />
-		<LinearLayout 
-            android:id="@+id/content2"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content" 
-            android:orientation="horizontal">
-		    
-            <AutoCompleteTextView
-                android:layout_weight="1"
-                android:id="@+id/AutoText"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:hint="Enter Text Here"
-                android:textColor="#afffff" />
-		    <ImageButton
-		        android:layout_weight="0"
-		        android:id="@+id/reset"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        android:src="@drawable/send"/>            
-            
-		</LinearLayout>	    	    
-	</SlidingDrawer>
-</RelativeLayout>
+	        android:layout_alignParentBottom="true"
+	        android:textColor="#ffffff" >
+	    </TextView>
+	
+	    <View
+	        android:id="@+id/view1"
+	        android:layout_width="fill_parent"
+	        android:layout_height="400dp"
+	        android:layout_above="@id/linear2"
+	        android:layout_below="@id/linear1"
+	        android:layout_centerInParent="true"/>
+	
+	    <SlidingDrawer
+	        android:id="@+id/slidingDrawer1"
+	        android:layout_width="300dp"
+	        android:layout_height="match_parent"
+	        android:layout_alignParentRight="true"
+	        android:content="@+id/content"
+	        android:handle="@+id/handle"
+	        android:orientation="horizontal" >
+	
+	        <ImageView
+	            android:id="@+id/handle"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:src="@drawable/slide_left" />
+	
+	        <RelativeLayout
+	            android:id="@+id/content"
+	            android:layout_width="match_parent"
+	            android:layout_height="match_parent" >
+	
+	            <ImageButton
+	                android:id="@+id/down"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:layout_below="@+id/up"
+	                android:layout_centerHorizontal="true"
+	                android:layout_marginTop="2dp"
+	                android:onClick="onClick"
+	                android:src="@drawable/sdown" />
+	
+	            <ImageButton
+	                android:id="@+id/space"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:layout_alignLeft="@+id/down"
+	                android:layout_below="@+id/down"
+	                android:layout_marginTop="24dp"
+	                android:onClick="onClick"
+	                android:src="@drawable/stop" />
+	
+	            <ImageButton
+	                android:id="@+id/enter"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:layout_alignLeft="@+id/right"
+	                android:layout_below="@+id/down"
+	                android:layout_marginTop="24dp"
+	                android:onClick="onClick"
+	                android:src="@drawable/enter" />
+	
+	            <ImageButton
+	                android:id="@+id/backspace"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:layout_alignLeft="@+id/left"
+	                android:layout_below="@+id/down"
+	                android:layout_marginTop="24dp"
+	                android:onClick="onClick"
+	                android:src="@drawable/backspace" />
+	
+	            <ImageButton
+	                android:id="@+id/right"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:layout_alignTop="@+id/down"
+	                android:layout_toRightOf="@+id/down"
+	                android:onClick="onClick"
+	                android:src="@drawable/sright" />
+	
+	            <ImageButton
+	                android:id="@+id/left"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:layout_alignBottom="@+id/down"
+	                android:layout_toLeftOf="@+id/down"
+	                android:onClick="onClick"
+	                android:src="@drawable/sleft" />
+	
+	            <ImageButton
+	                android:id="@+id/up"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:layout_alignRight="@+id/down"
+	                android:layout_centerInParent="true"
+	                android:layout_marginTop="10dp"
+	                android:onClick="onClick"
+	                android:src="@drawable/sup" />
+	        </RelativeLayout>
+	    </SlidingDrawer>
+	<!--  
+	    <SlidingDrawer
+	        android:id="@+id/slidingDrawer2"
+	        android:layout_width="match_parent"
+	        android:layout_height="400dp"
+	        android:layout_alignParentBottom="true"
+	        android:content="@+id/content2"
+	        android:handle="@+id/handle2"
+	        android:orientation="vertical" >
+	
+	        <ImageView
+	            android:id="@+id/handle2"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:src="@drawable/slideup" />
+	
+	        <LinearLayout
+	            android:id="@+id/content2"
+	            android:layout_width="fill_parent"
+	            android:layout_height="wrap_content"
+	            android:orientation="horizontal" >
+	        </LinearLayout>
+	    </SlidingDrawer>
+	-->
+	</RelativeLayout>
+	<!-- Now code for Navigation Drawers 
+	<RelativeLayout
+    android:id="@+id/LeftDrawer"
+    android:layout_width="290dp"
+    android:layout_height="match_parent"
+    android:layout_gravity="start"
+    android:background="@android:color/black" >
+
+	    <TextView
+	        android:id="@+id/textView"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:text="title"
+	        android:textColor="@android:color/white" />
+	
+	    <ListView
+	        android:id="@+id/left_expandableListView"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:layout_gravity="start" />
+	
+	    <TextView
+	        android:layout_width="25dp"
+	        android:layout_height="25dp"
+	        android:layout_alignParentBottom="true"
+	        android:textColor="@android:color/white"
+	        android:text="bottom" />
+	</RelativeLayout>
+	
+<!--  </android.support.v4.widget.DrawerLayout>-->

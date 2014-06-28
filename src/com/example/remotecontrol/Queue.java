@@ -12,12 +12,9 @@ public class Queue{
 		array = new float[size];
 		Size = size;
 	}
-	public void reset(boolean val)
-	{
-		if(val) 
-			for(int i = 0;i<Size;++i) array[i] = 3.14f;
-		else
-			for(int i = 0;i<Size;++i) array[i] = -3.14f;
+	public void reset(float val)
+	{		
+			for(int i = 0;i<Size;++i) array[i] = val;
 	}
 	public void insert(float value)
 	{

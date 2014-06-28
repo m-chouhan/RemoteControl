@@ -22,7 +22,11 @@ final class Data {
 		MEDIANEXT(0xB0),
 		MEDIAPREV(0xB1),
 		PLAY(0xFA),
-		ZOOM(0xFB);
+		ZOOM(0xFB),
+		WINDOWS(0x5B),
+		BROWSER_HOME(0xAC),
+		LAUNCH_APP_1(0xB6),
+		LAUNCH_APP_2(0xB7);
 		byte value;
 		V_KEYBUTTONS(int val){ value = (byte)val;}
 		public byte getValue(){return value;}
@@ -33,7 +37,7 @@ final class Data {
 	//static final int TEXT = 3;
 	public static enum InputModes{
 		ACCELERO(1),KEYBOARD(0),TOUCH(2),
-		TEXT(5),ABSOLUTE_MOUSE(3);
+		TEXT(5),ABSOLUTE_MOUSE(3),MULTI_KEY(255);
 		final byte val;
 		InputModes(int value)
 		{

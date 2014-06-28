@@ -20,17 +20,20 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.view.GestureDetectorCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnLongClickListener;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.SlidingDrawer;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -59,11 +62,21 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 	public Button connected;
 
 	private EditText Et;
+
+	private DrawerLayout drawerLayout;
+
+	private RelativeLayout leftRL;
 	@SuppressWarnings("deprecation")
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
+
 		super.onCreate(savedInstanceState);
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.main);
+		
+		drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
+	    leftRL = (RelativeLayout)findViewById(R.id.LeftDrawer);
+
 		
 		SlidingDrawer s = (SlidingDrawer)findViewById(R.id.slidingDrawer1);
 		s.setOnDrawerCloseListener(new SlidingDrawer.OnDrawerCloseListener() {
@@ -83,7 +96,7 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 				i.setImageResource(R.drawable.slide_right);
 			}
 		});
-
+/*
 		SlidingDrawer s2 = (SlidingDrawer)findViewById(R.id.slidingDrawer2);
 		s2.setOnDrawerCloseListener(new SlidingDrawer.OnDrawerCloseListener() {
 			
@@ -102,7 +115,7 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 				i.setImageResource(R.drawable.slide_down);
 			}
 		});
-		
+/**/		
 		
 		text = (TextView)findViewById(R.id.Text);
 
@@ -151,7 +164,13 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 		//sm.unregisterListener(this, sm.getDefaultSensor(Sensor.TYPE_ORIENTATION));
 		//sm.unregisterListener(this, sm.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD));
 	}
-	public void onToggleClicked(View view)
+	
+    public  void onOpenLeftDrawer(View view)
+    {
+    	drawerLayout.openDrawer(leftRL);
+    }
+	
+    public void onToggleClicked(View view)
 	{
 		boolean status = ((ToggleButton)view).isChecked();
 		if(status)
@@ -163,7 +182,8 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 		}
 		else
 		{
-			sm.unregisterListener(this);
+			sm.unregisterListener(this,sm.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD));
+			sm.unregisterListener(this, sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER));			
 			v.setVisibility(View.INVISIBLE);
 		}
 	}
@@ -236,8 +256,6 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 		return super.onKeyUp(keyCode, event);
 	}
 
-	public void resetText(View view) {
-	}
 	public void onClick(View view) {
 		
 			Log.d(TAG,"ButtonClicked");
@@ -258,13 +276,14 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 				Message msg = handler.obtainMessage();
 				msg.what = Data.BROADCAST ;
 				handler.sendMessage(msg);/**/
-				//sm.registerListener(this, sm.getDefaultSensor(Sensor.TYPE_ORIENTATION),SensorManager.SENSOR_DELAY_GAME);
 				
 				if( sm.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR) == null)
 					Log.d(TAG,"NOT avlble");
 				return;
 			}
 			
+			if(handler == null) return;
+
 			V_KEYBUTTONS key = null ;
 			switch(view.getId())
 			{
@@ -275,8 +294,17 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 				case R.id.space:	key = V_KEYBUTTONS.SPACE;break;
 				case R.id.backspace:key = V_KEYBUTTONS.BACKSPACE;break;
 				case R.id.enter:	key = V_KEYBUTTONS.RETURN;break;
+				case R.id.windows:  key = V_KEYBUTTONS.WINDOWS;break;
+				case R.id.browser:  key = V_KEYBUTTONS.BROWSER_HOME;break;
+				case R.id.explorer: 
+									Buffer.clear();
+									Buffer.put(InputModes.KEYBOARD.getValue());
+									Buffer.put(InputModes.MULTI_KEY.getValue());
+									Buffer.put(V_KEYBUTTONS.WINDOWS.value);
+									Buffer.put((byte)'E');Buffer.putInt(0);
+									LooperThread.sendRawMessage(Buffer);
+									return;
 			}
-			if(handler == null) return;
 			Message msg = handler.obtainMessage();
 			msg.arg1 = key.getValue();msg.what = Data.KEYBOARD;
 			
@@ -318,6 +346,19 @@ public class MainActivity extends Activity implements Button.OnClickListener, Se
 
 		SensorManager.getRotationMatrix(rotationmat, null, accelro, mag);
 		SensorManager.getOrientation(rotationmat, orient);
+
+		float x_mean = (float) Math.toDegrees(Qx.getMean());
+		float current = (float) Math.toDegrees(orient[0]);
+		boolean check = (x_mean < -160)  && (current > 0);
+		boolean check2 = (x_mean > 0) && (current < -160);
+		if((x_mean < -160  && current > 0 ) || 
+				(x_mean > 0 && current < -160))
+		{
+			Log.d("RemoteSensor","Reseting");
+			Qx.reset(orient[0]);
+		}
+		Log.d("RemoteSensor","[xm:"+x_mean+"][orient:"+current+
+				"][mod:"+Math.toDegrees(Qx.getMean())+"]"+check+check2);
 		Qx.insert(orient[0]);Qy.insert(orient[1]);Qz.insert(orient[2]);
 		
 		float xdeg = (float) Math.toDegrees(orient[0]);
